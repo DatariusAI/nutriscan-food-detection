@@ -1,0 +1,9 @@
+{
+ "Classifier": "YOLO11s-cls",
+ "Classifier test accuracy": "89.0%",
+ "Classifier macro-F1": "0.884",
+ "Detector mAP@0.5": "0.786",
+ "Detector mAP@0.5:0.95": "0.687",
+ "Pipeline accuracy (detect\u2192classify)": "88.6%",
+ "Classes": 17
+}
