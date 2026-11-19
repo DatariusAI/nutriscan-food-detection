@@ -717,27 +717,18 @@ code(r"""
 __APP__
 """)
 code(r"""
-# Launch the Streamlit app from this notebook and expose it with a Cloudflare quick tunnel
-import re, stat, urllib.request
-if not QUICK:
-    shutil.copy(APP_DIR / "app.py", "/content/app.py") if (APP_DIR / "app.py").exists() else None
-    for sub in ["weights", "samples"]:
-        shutil.copytree(APP_DIR / sub, f"/content/{sub}", dirs_exist_ok=True)
-    for f in ["nutrition.json", "metrics.json"]: shutil.copy(APP_DIR / f, f"/content/{f}")
-    cf = "/content/cloudflared"
-    if not os.path.exists(cf):
-        urllib.request.urlretrieve("https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64", cf)
-        os.chmod(cf, os.stat(cf).st_mode | stat.S_IEXEC)
-    subprocess.Popen("cd /content && setsid nohup streamlit run app.py --server.port 8501 --server.headless true > /content/st.log 2>&1 &", shell=True)
-    subprocess.Popen(f"setsid nohup {cf} tunnel --url http://localhost:8501 --no-autoupdate > /content/cf.log 2>&1 &", shell=True)
-    url = None
-    for _ in range(40):
-        time.sleep(2)
-        m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", open("/content/cf.log").read() if os.path.exists("/content/cf.log") else "")
-        if m: url = m.group(0); break
-    print("NutriScan is live at:", url)
-    (ART / "colab_app_url.txt").write_text(str(url))
-    log(f"streamlit live {url}")
+# Run NutriScan inside this notebook. Streamlit needs a WebSocket that Colab's proxy blocks, so the
+# in-notebook demo uses the Gradio version of the same app. The Streamlit version is deployed publicly.
+import subprocess, sys
+subprocess.run(["pkill", "-9", "-f", "streamlit run"])
+pip("gradio")
+for sub in ["weights", "samples"]: shutil.copytree(APP_DIR / sub, f"/content/{sub}", dirs_exist_ok=True)
+shutil.copy(APP_DIR / "nutrition.json", "/content/nutrition.json")
+shutil.copy(CAP / "deploy" / "gradio_app.py", "/content/gradio_app.py")
+sys.path.insert(0, "/content")
+import gradio_app
+print("Public Streamlit version: https://nutriscan-food.streamlit.app")
+gradio_app.demo.launch(theme=gradio_app.theme, css=gradio_app.CSS, share=False, inline=True, height=1000)
 """)
 
 nb = {"nbformat": 4, "nbformat_minor": 5,
@@ -745,7 +736,7 @@ nb = {"nbformat": 4, "nbformat_minor": 5,
                    "colab": {"gpuType": "T4", "provenance": []}, "language_info": {"name": "python"}},
       "cells": []}
 for t, s in cells:
-    s = s.replace("__NUTRI__", NUTRI).replace("__APP__", APP).replace("__APP_PATH__", "{APP_DIR}/app.py")
+    s = s.replace("__NUTRI__", NUTRI).replace("__APP__", APP).replace("__APP_PATH__", "/content/app.py")
     c = {"cell_type": t, "metadata": {}, "source": s}
     if t == "code": c.update(execution_count=None, outputs=[])
     nb["cells"].append(c)
