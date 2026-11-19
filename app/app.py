@@ -66,6 +66,7 @@ h1,h2,h3{font-family:'Fraunces',serif!important;color:var(--ink);letter-spacing:
 .conf>div{height:100%;background:linear-gradient(90deg,var(--leaf2),var(--leaf));}
 section[data-testid="stSidebar"]{background:#16432c;}
 section[data-testid="stSidebar"] *{color:#eaf4ee!important;}
+section[data-testid="stSidebar"] input{color:#1d2a22!important;-webkit-text-fill-color:#1d2a22!important;}
 .stButton>button,.stDownloadButton>button{border-radius:12px;border:0;background:var(--leaf);color:#fff;font-weight:600;}
 .stTabs [data-baseweb="tab"]{font-weight:600;}
 footer{visibility:hidden;}
