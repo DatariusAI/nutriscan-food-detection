@@ -39,3 +39,14 @@ for f in ["app.py", "Dockerfile", "README.md", "requirements.txt"]: shutil.copy(
 api.create_repo(SPACE_REPO, repo_type="space", space_sdk="docker", exist_ok=True, private=False)
 api.upload_folder(folder_path=str(space), repo_id=SPACE_REPO, repo_type="space", commit_message="Deploy NutriScan app")
 print("space:", f"https://huggingface.co/spaces/{SPACE_REPO}")
+
+# 3) Gradio Space (same models, Gradio UI)
+gsp = Path("/content/hf_gradio"); shutil.rmtree(gsp, ignore_errors=True); gsp.mkdir()
+shutil.copytree(ART / "app" / "weights", gsp / "weights"); shutil.copytree(ART / "app" / "samples", gsp / "samples")
+shutil.copy(ART / "app" / "nutrition.json", gsp / "nutrition.json")
+for src, dst in [("gradio_app.py", "app.py"), ("gradio_README.md", "README.md"), ("gradio_requirements.txt", "requirements.txt")]:
+    shutil.copy(SRC / src, gsp / dst)
+GRADIO_REPO = f"{USER}/nutriscan-gradio"
+api.create_repo(GRADIO_REPO, repo_type="space", space_sdk="gradio", exist_ok=True, private=False)
+api.upload_folder(folder_path=str(gsp), repo_id=GRADIO_REPO, repo_type="space", commit_message="Deploy NutriScan Gradio app")
+print("gradio space:", f"https://huggingface.co/spaces/{GRADIO_REPO}")

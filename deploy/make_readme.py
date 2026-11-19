@@ -16,7 +16,7 @@ cls_table = "\n".join(
     f"| {r['model']} | {pct(r['accuracy'])} | {float(r['macro_F1']):.3f} | {float(r['apple_pie_F1']):.3f} | {float(r['ms_per_image']):.1f} | {float(r['params_M']):.1f} |"
     for r in cls_rows)
 pipe_table = "\n".join(f"| {r['approach']} | {pct(r['accuracy'])} |" for r in pipe_rows)
-live = f"[Hugging Face Space]({SPACE})" + (f" · [Streamlit Cloud]({ST})" if ST else "")
+live = f"[Streamlit on Hugging Face]({SPACE}) · [Gradio on Hugging Face]({SPACE}-gradio)" + (f" · [Streamlit Community Cloud]({ST})" if ST else "")
 
 readme = f"""# NutriScan 🥗 — AI Food Detection & Classification
 
@@ -70,10 +70,16 @@ photo ──► YOLO11s detector ──► box crops ──► YOLO11s-cls class
 |---|---|
 {pipe_table}
 
-![class distribution]({HF}/class_distribution.png)
-![confusion matrix]({HF}/cls_confusion.png)
-![pseudo boxes]({HF}/pseudo_samples.png)
-![detections]({HF}/det_samples.png)
+Whole-image classification scores slightly higher on single-dish photos. The app still ships detect → classify,
+because only the boxed version can handle plates with several items and size portions from the box.
+
+![pipeline](docs/figures/fig_pipeline_diagram.png)
+![class distribution](docs/figures/fig_class_distribution.png)
+![classifier comparison](docs/figures/fig_cls_compare.png)
+![confusion matrix](docs/figures/fig_confusion.png)
+![pseudo boxes](docs/figures/pseudo_samples.jpg)
+![detections](docs/figures/det_samples.jpg)
+![per-class AP](docs/figures/fig_det_per_class.png)
 
 ## Limitations
 - Detector mAP is measured against machine-generated boxes, not hand-drawn ground truth.
@@ -84,6 +90,7 @@ photo ──► YOLO11s detector ──► box crops ──► YOLO11s-cls class
 ## Repository layout
 ```
 app/app.py                 Streamlit app (also runs on Streamlit Cloud; weights pulled from the HF model repo)
+gradio_app/app.py          Gradio version of the app (Hugging Face Space)
 app/nutrition.json         per-serving nutrition + healthier swaps for the 17 dishes
 notebooks/                 end-to-end notebook with outputs (EDA → training → evaluation → app)
 deploy/Dockerfile          Hugging Face Space image (CPU)
