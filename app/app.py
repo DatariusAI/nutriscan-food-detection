@@ -118,10 +118,8 @@ def analyse(img: Image.Image, conf: float, use_cls: bool, portion: float):
                 if cs >= score:
                     label, score, src = cl, cs, "classifier"
             items.append(dict(label=label, conf=score, box=(x1, y1, x2, y2), crop=crop, src=src))
-    if not items and cls is not None:  # no box found -> whole-image classification
-        c = cls.predict(rgb, verbose=False, imgsz=224)[0]
-        items.append(dict(label=c.names[int(c.probs.top1)], conf=float(c.probs.top1conf),
-                          box=(0, 0, rgb.width, rgb.height), crop=rgb, src="classifier (whole image)"))
+    # No whole-image fallback: if the detector finds none of the 17 known dishes, we say so
+    # instead of forcing the photo into the closest class (the classifier is overconfident on unseen foods).
     ms = (time.time() - t0) * 1000
 
     # draw
@@ -180,7 +178,7 @@ with st.sidebar:
     goal = st.number_input("Daily calorie goal", 1200, 4000, 2000, 50)
     portion = st.select_slider("Portion size", options=[0.5, 0.75, 1.0, 1.25, 1.5, 2.0], value=1.0,
                                format_func=lambda x: f"{x}× serving")
-    conf = st.slider("Detection confidence", 0.05, 0.9, 0.25, 0.05)
+    conf = st.slider("Detection confidence", 0.05, 0.9, 0.45, 0.05, help="Higher = only confident dishes. Lower it to catch side items on busy plates.")
     use_cls = st.toggle("Refine labels with classifier", value=True)
     st.divider()
     det, cls = load_models()
@@ -195,7 +193,7 @@ if "log" not in st.session_state:
 
 # ----------------------------------------------------------------- hero
 st.markdown(f"""<div class="hero"><div>
-<span class="pill">YOLO detection</span><span class="pill">Food classification</span><span class="pill">{len(NUTRI)} dishes</span>
+<span class="pill">YOLO detection</span><span class="pill">Food classification</span><span class="pill">{len(NUTRI)} dishes</span><span class="pill">Says so when unsure</span>
 <h1>Know your plate<br>in one photo.</h1>
 <p>NutriScan finds every food item in your picture, names it, and turns it into calories and macros — with a healthier swap for each.</p>
 </div><div style="font-size:4.2rem;line-height:1">🍱</div></div>""", unsafe_allow_html=True)
@@ -231,7 +229,9 @@ with tab_scan:
             st.caption(f"{len(items)} item(s) · {ms:.0f} ms")
         with c2:
             if not items:
-                st.warning("No food found. Try lowering the confidence threshold.")
+                st.warning("I couldn't find any of the 17 dishes I know in this photo, so I won't guess.")
+                st.markdown("**NutriScan currently recognises:** " + ", ".join(pretty(k) for k in sorted(NUTRI)) +
+                            ". Other foods and drinks are not supported yet.")
             else:
                 tk = sum(i["kcal"] for i in items); tp = sum(i["protein_g"] for i in items)
                 tc = sum(i["carbs_g"] for i in items); tf = sum(i["fat_g"] for i in items)

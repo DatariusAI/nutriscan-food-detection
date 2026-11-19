@@ -42,10 +42,11 @@ def analyse(img, portion, conf, refine):
             if float(c.probs.top1conf) >= sc:
                 lab, sc = c.names[int(c.probs.top1)], float(c.probs.top1conf)
         items.append(dict(label=lab, conf=sc, box=(x1, y1, x2, y2)))
-    if not items:  # nothing boxed: classify the whole photo
-        c = CLS.predict(img, imgsz=224, verbose=False)[0]
-        items.append(dict(label=c.names[int(c.probs.top1)], conf=float(c.probs.top1conf), box=(0, 0, img.width, img.height)))
     ms = (time.time() - t0) * 1000
+    if not items:  # no known dish detected: say so rather than force the photo into the nearest class
+        known = ", ".join(pretty(k) for k in sorted(NUTRI))
+        return img, (f"<div class='swaps'><h4>No known dish found</h4><p>I couldn't find any of the 17 dishes I know, so I won't guess.</p>"
+                     f"<p><b>Supported:</b> {known}.</p></div>"), None, pd.DataFrame()
 
     out = img.copy(); d = ImageDraw.Draw(out); lw = max(3, img.width // 220)
     try:
@@ -98,7 +99,7 @@ with gr.Blocks(title="NutriScan · AI Food Detection") as demo:
             inp = gr.Image(type="pil", label="Meal photo", sources=["upload", "webcam", "clipboard"], height=380)
             with gr.Row():
                 portion = gr.Slider(0.5, 2.0, 1.0, step=0.25, label="Portion (× serving)")
-                conf = gr.Slider(0.05, 0.9, 0.25, step=0.05, label="Detection confidence")
+                conf = gr.Slider(0.05, 0.9, 0.45, step=0.05, label="Detection confidence")
             refine = gr.Checkbox(True, label="Refine labels with the classifier")
             btn = gr.Button("Scan my plate", variant="primary", size="lg")
             if examples:
