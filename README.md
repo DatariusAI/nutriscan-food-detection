@@ -4,7 +4,7 @@
 
 Capstone project · Deakin Master of Applied AI (Bridge) · Mohammad Alrashed
 
-**Live app:** [Streamlit on Hugging Face](https://huggingface.co/spaces/DatariusAI/nutriscan) · [Gradio on Hugging Face](https://huggingface.co/spaces/DatariusAI/nutriscan-gradio) · **Models:** [DatariusAI/nutriscan-food-models](https://huggingface.co/DatariusAI/nutriscan-food-models) · **Notebook:** [`notebooks/NutriScan_Food_Detection.ipynb`](notebooks/NutriScan_Food_Detection.ipynb)
+**Live app:** [Streamlit app](https://nutriscan-food.streamlit.app) · [Gradio app on Hugging Face](https://huggingface.co/spaces/DatariusAI/nutriscan-gradio) · **Models:** [`app/weights/`](app/weights) · **Notebook:** [`notebooks/NutriScan_Food_Detection.ipynb`](notebooks/NutriScan_Food_Detection.ipynb)
 
 ## Problem
 Manual food logging is slow and error-prone. NutriScan needs to:

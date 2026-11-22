@@ -7,7 +7,7 @@ m = json.load(open(src / "metrics.json"))
 cls_rows = list(csv.DictReader(open(src / "classifier_comparison.csv")))
 pipe_rows = list(csv.DictReader(open(src / "pipeline_comparison.csv")))
 HF = "https://huggingface.co/DatariusAI/nutriscan-food-models/resolve/main/figures"
-SPACE = "https://huggingface.co/spaces/DatariusAI/nutriscan"
+SPACE = "https://nutriscan-food.streamlit.app"
 ST = sys.argv[2] if len(sys.argv) > 2 else ""
 
 def pct(x): return f"{float(x):.1%}"

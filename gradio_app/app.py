@@ -111,7 +111,7 @@ with gr.Blocks(title="NutriScan · AI Food Detection") as demo:
     table = gr.Dataframe(label="Per-item nutrition", wrap=True)
     gr.Markdown("Nutrition values are typical-serving estimates for guidance only, not medical advice. · "
                 "[Code & report](https://github.com/DatariusAI/nutriscan-food-detection) · "
-                "[Streamlit version](https://huggingface.co/spaces/DatariusAI/nutriscan)")
+                "[Streamlit version](https://nutriscan-food.streamlit.app)")
     btn.click(analyse, [inp, portion, conf, refine], [out_img, summary, donut, table])
     inp.change(analyse, [inp, portion, conf, refine], [out_img, summary, donut, table])
 
